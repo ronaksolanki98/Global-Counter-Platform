@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      TABLE_NAME: serverless_web_application_views
+      TRACKING_ID: GLOBAL_COUNTER
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/backend/requirements.txt -r app/backend/dev-requirements.txt
+
+      - name: Backend lint
+        run: flake8 app/backend
+
+      - name: Backend tests
+        run: pytest tests
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        working-directory: app/frontend
+        run: npm install
+
+      - name: Frontend lint
+        working-directory: app/frontend
+        run: npm run lint
+
+      - name: Frontend build
+        working-directory: app/frontend
+        run: npm run build
+
+      - name: Build backend Docker image
+        run: docker build -t serverless-counter-backend -f docker/backend/Dockerfile .
+
+      - name: Build frontend Docker image
+        run: docker build -t serverless-counter-frontend -f docker/frontend/Dockerfile app/frontend
+
+      - name: Validate Terraform
+        run: ./scripts/validate-stack.sh
+
+      - name: Validate Kubernetes manifests
+        run: ./ci-cd/validate-k8s.sh

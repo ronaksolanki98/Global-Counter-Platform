@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serverless-counter-backend
+  labels:
+    app: serverless-counter-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: serverless-counter-backend
+  template:
+    metadata:
+      labels:
+        app: serverless-counter-backend
+    spec:
+      containers:
+        - name: backend
+          image: REPLACE_WITH_BACKEND_IMAGE
+          ports:
+            - containerPort: 8000
+          env:
+            - name: TABLE_NAME
+              value: "serverless_web_application_views"
+            - name: TRACKING_ID
+              value: "GLOBAL_COUNTER"
+            - name: AWS_REGION
+              value: "us-east-1"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10

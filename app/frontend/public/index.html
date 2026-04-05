@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Serverless Counter App</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+  </head>
+  <body data-api-url="{{DATA_API_URL}}">
+    <header>
+      <div>
+        <p class="eyebrow">Serverless Counter</p>
+        <h1>Global View Tracker</h1>
+      </div>
+      <span class="counter-label">Live Updates</span>
+    </header>
+
+    <main>
+      <section class="card">
+        <p class="lead">Share your name and see the live view count increase.</p>
+        <form id="welcome-form">
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" placeholder="e.g., Taylor" required />
+          <button type="submit">Celebrate views</button>
+        </form>
+        <p id="greeting"></p>
+        <div class="metrics">
+          <span class="metric">Current views:</span>
+          <strong id="view-counter">Connecting...</strong>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

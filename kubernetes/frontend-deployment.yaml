@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serverless-counter-frontend
+  labels:
+    app: serverless-counter-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: serverless-counter-frontend
+  template:
+    metadata:
+      labels:
+        app: serverless-counter-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: REPLACE_WITH_FRONTEND_IMAGE
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATA_API_URL
+              value: "https://REPLACE_WITH_API_URL"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
