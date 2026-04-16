@@ -14,13 +14,21 @@ TABLE_NAME = os.getenv('TABLE_NAME', 'serverless_web_application_views')
 TRACKING_ID = os.getenv('TRACKING_ID', 'GLOBAL_COUNTER')
 PARTITION_KEY = 'id'
 
-_dynamodb = boto3.resource('dynamodb')
-_table = _dynamodb.Table(TABLE_NAME)
+
+def get_table():
+    """
+    Lazily initialize DynamoDB table.
+    This prevents AWS calls during module import (important for testing/CI).
+    """
+    dynamodb = boto3.resource('dynamodb')
+    return dynamodb.Table(TABLE_NAME)
 
 
 def _increment_views() -> int:
+    table = get_table()
+
     try:
-        response = _table.update_item(
+        response = table.update_item(
             Key={PARTITION_KEY: TRACKING_ID},
             UpdateExpression=(
                 'SET #views = if_not_exists(#views, :start) + :inc'
