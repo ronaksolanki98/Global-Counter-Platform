@@ -15,14 +15,16 @@ jobs:
     env:
       TABLE_NAME: serverless_web_application_views
       TRACKING_ID: GLOBAL_COUNTER
-      PYTHONPATH: .   # ✅ FIX (critical)
+      PYTHONPATH: .
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ---------------- BACKEND ---------------- #
+
       - name: Setup Python
-        uses: actions/setup-python@v5   # ✅ upgraded
+        uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
@@ -35,16 +37,18 @@ jobs:
         run: flake8 app/backend
 
       - name: Backend tests
-        run: pytest tests   # ✅ now works because PYTHONPATH is set
+        run: pytest tests
+
+      # ---------------- FRONTEND ---------------- #
 
       - name: Setup Node
-        uses: actions/setup-node@v4   # ✅ upgraded
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install frontend deps
         working-directory: app/frontend
-        run: npm install
+        run: npm ci   # ✅ better than npm install
 
       - name: Frontend lint
         working-directory: app/frontend
@@ -54,11 +58,15 @@ jobs:
         working-directory: app/frontend
         run: npm run build
 
+      # ---------------- DOCKER ---------------- #
+
       - name: Build backend Docker image
         run: docker build -t serverless-counter-backend -f docker/backend/Dockerfile .
 
       - name: Build frontend Docker image
-        run: docker build -t serverless-counter-frontend -f docker/frontend/Dockerfile app/frontend
+        run: docker build -t serverless-counter-frontend -f docker/frontend/Dockerfile .   # ✅ FIXED
+
+      # ---------------- INFRA ---------------- #
 
       - name: Validate Terraform
         run: ./scripts/validate-stack.sh
