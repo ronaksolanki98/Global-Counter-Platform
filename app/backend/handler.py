@@ -14,14 +14,18 @@ TABLE_NAME = os.getenv('TABLE_NAME', 'serverless_web_application_views')
 TRACKING_ID = os.getenv('TRACKING_ID', 'GLOBAL_COUNTER')
 PARTITION_KEY = 'id'
 
+# ✅ Allow injection (VERY IMPORTANT)
+_table = None
+
 
 def get_table():
-    """
-    Lazily initialize DynamoDB table.
-    This prevents AWS calls during module import (important for testing/CI).
-    """
-    dynamodb = boto3.resource('dynamodb')
-    return dynamodb.Table(TABLE_NAME)
+    global _table
+
+    if _table is None:
+        dynamodb = boto3.resource('dynamodb')
+        _table = dynamodb.Table(TABLE_NAME)
+
+    return _table
 
 
 def _increment_views() -> int:
