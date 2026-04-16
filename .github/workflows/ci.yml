@@ -78,5 +78,11 @@ jobs:
 
       # ---------------- KUBERNETES ---------------- #
 
+      # ✅ CRITICAL FIX: Install kubeval
+      - name: Install kubeval
+        run: |
+          curl -sSL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz | tar xz
+          sudo mv kubeval /usr/local/bin
+
       - name: Validate Kubernetes manifests
         run: ./ci-cd/validate-k8s.sh
